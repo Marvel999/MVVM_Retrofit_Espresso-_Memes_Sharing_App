@@ -1,22 +1,26 @@
 package com.marvel999.memoapp.ViewModel
 
+import android.app.Application
 import android.content.Context
-import android.util.Log
-import android.widget.ImageView
-import android.widget.ProgressBar
-import androidx.lifecycle.ViewModel
-import com.marvel999.memoapp.Model.GetMemesUrl
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import com.marvel999.memoapp.Repo.GetMemesUrl
 
-class MemeUrlData: ViewModel() {
+class MemeUrlData(applicarion:Application):AndroidViewModel(applicarion) {
+
+    var live_data=MutableLiveData<String>();
     var url="";
-    fun LoadUrl(context: Context,image:ImageView,progressBar:ProgressBar){
-
-        val gmu=GetMemesUrl();
-       url= gmu.geturl(context,image,progressBar)
-
+    val gmu=GetMemesUrl();
+    fun LoadUrl(context: Context):MutableLiveData<String>{
+        live_data=gmu.geturl(context);
+       return gmu.geturl(context);
     }
 
-    fun geturl():String{
-        return url;
+ fun loadUrlNewData(context: Context):MutableLiveData<String>{
+     val gmu_new=GetMemesUrl();
+        live_data=gmu_new.geturl(context);
+       return gmu_new.geturl(context);
     }
+
+
 }

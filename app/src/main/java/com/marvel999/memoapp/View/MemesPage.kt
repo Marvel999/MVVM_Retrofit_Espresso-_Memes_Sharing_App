@@ -1,48 +1,46 @@
 package com.marvel999.memoapp.View
 
-import android.content.Intent
-import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.view.View.*
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.marvel999.memoapp.Model.GetMemesUrl
 import com.marvel999.memoapp.R
-import com.marvel999.memoapp.ViewModel.MemeUrlData
 import kotlinx.android.synthetic.main.activity_memes_page.*
+import com.marvel999.memoapp.ViewModel.MemeUrlData as MemeUrlData1
 
 class MemesPage : AppCompatActivity() {
+
+      lateinit var viewmodel: MemeUrlData1;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_memes_page);
-        val MemeUrl= MemeUrlData();
-        progressBar.setVisibility(VISIBLE)
-        val imageurl=MemeUrl.LoadUrl(this,memsImage,progressBar);
 
-        nextbtn.setOnClickListener(View.OnClickListener {
-            progressBar.setVisibility(VISIBLE);
-            val imageurl=MemeUrl.LoadUrl(this,memsImage,progressBar);
+
+        viewmodel= ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory.getInstance(application))
+                     .get(MemeUrlData1::class.java);
+        viewmodel.LoadUrl(this).observe(this, Observer {
+            Glide.with(memsImage)
+                .load(it)
+                .into(memsImage)
+            progressBar.visibility= GONE
         })
 
-        sharebtn.setOnClickListener(View.OnClickListener {
-            val gmu= MemeUrlData();
-            val intent= Intent(Intent.ACTION_SEND)
-            intent.setType( "text/plain");
+        nextbtn.setOnClickListener {
+            progressBar.visibility= VISIBLE
+            nextbtn.isClickable=false;
 
-
-            Log.e("URL",gmu.geturl()+"is empty")
-            intent.putExtra(Intent.EXTRA_TEXT,"Hello friend I found this Memes${gmu.geturl()}")
-            val choose=Intent.createChooser(intent,"Share this memes...")
-            if (choose.`package`=="com.whatsapp")
-            intent.setPackage("com.whatsapp");
-            startActivity(choose);
-        })
-
-
+            viewmodel.loadUrlNewData(this).observe(this, Observer {
+                Glide.with(memsImage)
+                    .load(it)
+                    .into(memsImage)
+                progressBar.visibility= GONE
+                nextbtn.isClickable=true;
+            })
+        }
 
 
     }
 }
+
